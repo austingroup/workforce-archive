@@ -32,15 +32,27 @@
         $gridClass = $fileCount === 1 ? 'grid-1' : ($fileCount === 2 ? 'grid-2' : ($fileCount <= 4 ? 'grid-3' : 'grid-more'));
         $displayFiles = array_slice($post['files'], 0, 6);
         $moreCount = $fileCount - 6;
+        $postId = $post['id'];
         ?>
-        <div class="post-images <?= $gridClass ?>">
-            <?php foreach ($displayFiles as $index => $file): ?>
-                <div class="post-image <?= ($index === 5 && $moreCount > 0) ? 'more-images' : '' ?>" 
-                     <?= ($index === 5 && $moreCount > 0) ? 'data-count="+' . $moreCount . '"' : '' ?>>
-                    <?php if ($index < 5 || $moreCount === 0): ?>
-                        <img src="/workforce.jpeg" alt="Post image" style="width: 100%; height: 100%; object-fit: cover;">
-                    <?php endif; ?>
-                </div>
+        <div class="post-images <?= $gridClass ?>" 
+             data-post-id="<?= htmlspecialchars($postId) ?>"
+             data-total-images="<?= $fileCount ?>">
+            <?php foreach ($post['files'] as $index => $file): ?>
+                <?php if ($index < 6): ?>
+                    <div class="post-image <?= ($index === 5 && $moreCount > 0) ? 'more-images' : '' ?>" 
+                         <?= ($index === 5 && $moreCount > 0) ? 'data-count="+' . $moreCount . '"' : '' ?>
+                         data-image-index="<?= $index ?>"
+                         style="cursor: pointer;">
+                        <?php if ($index < 5 || $moreCount === 0): ?>
+                            <img src="/workforce.jpeg" alt="Post image" style="width: 100%; height: 100%; object-fit: cover;">
+                        <?php endif; ?>
+                    </div>
+                <?php else: ?>
+                    <!-- Hidden images for modal -->
+                    <div class="post-image" style="display: none;" data-image-index="<?= $index ?>">
+                        <img src="/workforce.jpeg" alt="Post image">
+                    </div>
+                <?php endif; ?>
             <?php endforeach; ?>
         </div>
     <?php endif; ?>

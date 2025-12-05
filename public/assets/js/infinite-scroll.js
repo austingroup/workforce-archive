@@ -43,6 +43,11 @@ function loadMorePosts() {
                 currentPage++;
                 hasMore = data.hasMore;
                 
+                // Re-attach image modal handlers to new posts
+                if (typeof window.attachImageModalHandlers === 'function') {
+                    window.attachImageModalHandlers();
+                }
+                
                 const scrollIndicator = document.getElementById('scroll-indicator');
                 if (scrollIndicator) {
                     scrollIndicator.style.display = hasMore ? 'block' : 'none';
