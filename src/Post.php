@@ -24,13 +24,15 @@ class Post {
         // Add search filter if provided
         if (!empty($searchQuery)) {
             $sql .= " AND (p.content LIKE ? 
+                      OR p.id LIKE ?
                       OR u.first_name LIKE ? 
                       OR u.last_name LIKE ? 
                       OR u.username LIKE ?
                       OR pl.name LIKE ? 
                       OR pl.address LIKE ?
                       OR p.id IN (SELECT post_id FROM hashtags WHERE hashtag LIKE ?))";
-            $searchTerm = '%' . $searchQuery . '%';
+            $searchTerm = '%' . str_replace(' ', '%', $searchQuery) . '%';
+            $params[] = $searchTerm;
             $params[] = $searchTerm;
             $params[] = $searchTerm;
             $params[] = $searchTerm;
@@ -71,6 +73,7 @@ class Post {
         // Global search query (searches everywhere)
         if (!empty($filters['q'])) {
             $sql .= " AND (p.content LIKE ? 
+                      OR p.id LIKE ?
                       OR u.first_name LIKE ? 
                       OR u.last_name LIKE ? 
                       OR u.username LIKE ?
@@ -78,7 +81,8 @@ class Post {
                       OR pl.address LIKE ?
                       OR c.name LIKE ?
                       OR p.id IN (SELECT post_id FROM hashtags WHERE hashtag LIKE ?))";
-            $searchTerm = '%' . $filters['q'] . '%';
+            $searchTerm = '%' . str_replace(' ', '%', $filters['q']) . '%';
+            $params[] = $searchTerm;
             $params[] = $searchTerm;
             $params[] = $searchTerm;
             $params[] = $searchTerm;
