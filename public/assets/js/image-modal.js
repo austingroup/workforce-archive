@@ -72,7 +72,12 @@ function attachImageModalHandlers() {
                 // Get all images for this post
                 const postImagesContainer = newImageDiv.closest('.post-images');
                 const parentImages = postImagesContainer.querySelectorAll('.post-image');
-                currentImages = Array.from(parentImages).map(div => div.querySelector('img')?.src).filter(src => src);
+                
+                // Get image sources from data-image-src attribute (for proxy URLs)
+                currentImages = Array.from(parentImages).map(div => {
+                    return div.dataset.imageSrc || div.querySelector('img')?.src;
+                }).filter(src => src);
+                
                 currentIndex = Array.from(parentImages).indexOf(newImageDiv);
                 
                 // Get post data for filename

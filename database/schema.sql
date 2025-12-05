@@ -74,6 +74,8 @@ CREATE TABLE IF NOT EXISTS post_files (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     post_id TEXT NOT NULL,
     file_id TEXT NOT NULL,
+    folder_id TEXT,
+    file_name TEXT,
     file_order INTEGER DEFAULT 0,
     FOREIGN KEY (post_id) REFERENCES posts(id)
 );

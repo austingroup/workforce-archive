@@ -5,13 +5,40 @@
  */
 
 // Increase memory limit for large imports
-ini_set('memory_limit', '512M');
+ini_set('memory_limit', '1024M');
 
 require_once __DIR__ . '/config/config.php';
 
 $metadataPath = __DIR__ . '/metadata/';
 
 echo "Starting import...\n";
+
+// Build file lookup from user_files exports
+echo "\nBuilding file lookup index...\n";
+$fileMap = [];
+$userFilesExports = glob($metadataPath . 'user_files_*_export_*.json');
+foreach ($userFilesExports as $fileExport) {
+    echo "Loading " . basename($fileExport) . "...\n";
+    $files = json_decode(file_get_contents($fileExport), true);
+    if ($files) {
+        foreach ($files as $file) {
+            if (!empty($file['_id']) && !empty($file['original']['key'])) {
+                // Extract folder ID and filename from the key path
+                // Format: production/image/post/{folder_id}/{filename}
+                $key = $file['original']['key'];
+                if (preg_match('#production/image/post/([^/]+)/(.+)$#', $key, $matches)) {
+                    $fileMap[$file['_id']] = [
+                        'folder_id' => $matches[1],
+                        'file_name' => $matches[2]
+                    ];
+                }
+            }
+        }
+    }
+    unset($files); // Free memory
+    gc_collect_cycles();
+}
+echo "Loaded " . count($fileMap) . " file mappings.\n";
 
 // Create database connection
 try {
@@ -130,7 +157,7 @@ $postStmt = $db->prepare("INSERT OR REPLACE INTO posts
      is_deleted, is_hidden, like_count, comment_count, container_item_count, created_at, updated_at, ready_at) 
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
-$fileStmt = $db->prepare("INSERT INTO post_files (post_id, file_id, file_order) VALUES (?, ?, ?)");
+$fileStmt = $db->prepare("INSERT INTO post_files (post_id, file_id, folder_id, file_name, file_order) VALUES (?, ?, ?, ?, ?)");
 $hashtagStmt = $db->prepare("INSERT INTO hashtags (post_id, hashtag) VALUES (?, ?)");
 
 // Start transaction for better performance
@@ -175,7 +202,9 @@ foreach ($postFiles as $postFile) {
         // Insert post files from parent post
         if (!empty($post['fileIds'])) {
             foreach ($post['fileIds'] as $index => $fileId) {
-                $fileStmt->execute([$post['_id'], $fileId, $index]);
+                $folderId = $fileMap[$fileId]['folder_id'] ?? null;
+                $fileName = $fileMap[$fileId]['file_name'] ?? null;
+                $fileStmt->execute([$post['_id'], $fileId, $folderId, $fileName, $index]);
             }
         }
         
@@ -187,7 +216,9 @@ foreach ($postFiles as $postFile) {
                     ($childPost['postType'] ?? null) === 'containerItem') {
                     if (!empty($childPost['fileIds'])) {
                         foreach ($childPost['fileIds'] as $fileId) {
-                            $fileStmt->execute([$post['_id'], $fileId, $fileOffset++]);
+                            $folderId = $fileMap[$fileId]['folder_id'] ?? null;
+                            $fileName = $fileMap[$fileId]['file_name'] ?? null;
+                            $fileStmt->execute([$post['_id'], $fileId, $folderId, $fileName, $fileOffset++]);
                         }
                     }
                 }

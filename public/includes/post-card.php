@@ -38,19 +38,28 @@
              data-post-id="<?= htmlspecialchars($postId) ?>"
              data-total-images="<?= $fileCount ?>">
             <?php foreach ($post['files'] as $index => $file): ?>
+                <?php 
+                // Construct image proxy URL with folder_id and file_name
+                $imageSrc = (!empty($file['folder_id']) && !empty($file['file_name']))
+                    ? '/image-proxy.php?folder_id=' . urlencode($file['folder_id']) . '&file=' . urlencode($file['file_name'])
+                    : '/assets/images/workforce.jpeg';
+                ?>
                 <?php if ($index < 6): ?>
                     <div class="post-image <?= ($index === 5 && $moreCount > 0) ? 'more-images' : '' ?>" 
                          <?= ($index === 5 && $moreCount > 0) ? 'data-count="+' . $moreCount . '"' : '' ?>
                          data-image-index="<?= $index ?>"
+                         data-image-src="<?= htmlspecialchars($imageSrc) ?>"
                          style="cursor: pointer;">
                         <?php if ($index < 5 || $moreCount === 0): ?>
-                            <img src="/workforce.jpeg" alt="Post image" style="width: 100%; height: 100%; object-fit: cover;">
+                            <img src="<?= htmlspecialchars($imageSrc) ?>" alt="Post image" style="width: 100%; height: 100%; object-fit: cover;">
                         <?php endif; ?>
                     </div>
                 <?php else: ?>
                     <!-- Hidden images for modal -->
-                    <div class="post-image" style="display: none;" data-image-index="<?= $index ?>">
-                        <img src="/workforce.jpeg" alt="Post image">
+                    <div class="post-image" style="display: none;" 
+                         data-image-index="<?= $index ?>"
+                         data-image-src="<?= htmlspecialchars($imageSrc) ?>">
+                        <img src="<?= htmlspecialchars($imageSrc) ?>" alt="Post image">
                     </div>
                 <?php endif; ?>
             <?php endforeach; ?>
