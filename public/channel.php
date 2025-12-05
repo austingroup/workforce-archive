@@ -61,7 +61,7 @@ include 'includes/header.php';
 ?>
 
 <!-- Channel Search -->
-<div style="background: white; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+<div class="global-search-box" style="background: white; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
     <form method="GET" action="/channel.php" style="display: flex; gap: 10px; align-items: center;">
         <input type="hidden" name="id" value="<?= htmlspecialchars($channelId) ?>">
         <input type="text" 

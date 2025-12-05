@@ -130,8 +130,9 @@ body {
     padding: 20px 30px;
 }
 
-/* Posts Feed */
-.posts-feed {
+/* Posts Feed and Search */
+.posts-feed,
+.global-search-box {
     max-width: 900px;
 }
 
@@ -283,6 +284,7 @@ body {
     border-radius: 8px;
     margin-bottom: 20px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    max-width: 900px;
 }
 
 .search-filters h3 {
