@@ -96,6 +96,10 @@ include 'includes/header.php';
         <?php foreach ($posts as $post): ?>
             <?php include 'includes/post-card.php'; ?>
         <?php endforeach; ?>
+        
+        <div id="scroll-indicator" class="scroll-indicator">
+            ↓ Scroll down to load more posts
+        </div>
     <?php endif; ?>
 </div>
 

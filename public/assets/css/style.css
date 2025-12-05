@@ -382,3 +382,25 @@ body {
     padding: 40px;
     color: #999;
 }
+
+/* Scroll Indicator */
+.scroll-indicator {
+    text-align: center;
+    padding: 30px 20px;
+    color: #999;
+    font-size: 14px;
+    font-weight: 500;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
