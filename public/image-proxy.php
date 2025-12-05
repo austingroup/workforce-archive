@@ -4,12 +4,17 @@
  * Path: \\gazman.com.au\AustinGroup\Archive\Company\GAZMAN\VM\Workforce\gazman-exported-gcs-files\image\post\{folder_id}\{filename}
  */
 
+// Enable error display for debugging
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 // Get parameters
-$folderId = $_GET['folder_id'] ?? '';
-$fileName = $_GET['file'] ?? '';
+$folderId = isset($_GET['folder_id']) ? $_GET['folder_id'] : '';
+$fileName = isset($_GET['file']) ? $_GET['file'] : '';
 
 if (empty($folderId) || empty($fileName)) {
     http_response_code(400);
+    echo "Missing parameters";
     exit;
 }
 
@@ -27,6 +32,7 @@ if (!file_exists($filePath) || !is_readable($filePath)) {
         exit;
     }
     http_response_code(404);
+    echo "File not found: " . htmlspecialchars($filePath);
     exit;
 }
 
@@ -39,16 +45,16 @@ if ($fileSize === false) {
 
 // Detect mime type based on extension
 $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
-$mimeTypes = [
+$mimeTypes = array(
     'jpg' => 'image/jpeg',
     'jpeg' => 'image/jpeg',
     'png' => 'image/png',
     'gif' => 'image/gif',
     'webp' => 'image/webp',
     'pdf' => 'application/pdf'
-];
+);
 
-$mimeType = $mimeTypes[$extension] ?? 'application/octet-stream';
+$mimeType = isset($mimeTypes[$extension]) ? $mimeTypes[$extension] : 'application/octet-stream';
 
 // Set appropriate headers
 header('Content-Type: ' . $mimeType);
