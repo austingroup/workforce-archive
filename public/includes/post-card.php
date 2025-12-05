@@ -15,6 +15,7 @@
                 <?php if (!empty($post['channel_name'])): ?>
                     · in <a href="/channel.php?id=<?= urlencode($post['channel_id']) ?>" style="color: #3a8f71; text-decoration: none;"><?= htmlspecialchars($post['channel_name']) ?></a>
                 <?php endif; ?>
+                · ID: <?= htmlspecialchars($post['id']) ?>
             </div>
         </div>
     </div>
@@ -36,7 +37,9 @@
             <?php foreach ($displayFiles as $index => $file): ?>
                 <div class="post-image <?= ($index === 5 && $moreCount > 0) ? 'more-images' : '' ?>" 
                      <?= ($index === 5 && $moreCount > 0) ? 'data-count="+' . $moreCount . '"' : '' ?>>
-                    <?= ($index < 5 || $moreCount === 0) ? '[Image: ' . htmlspecialchars($file['file_id']) . ']' : '' ?>
+                    <?php if ($index < 5 || $moreCount === 0): ?>
+                        <img src="/workforce.jpeg" alt="Post image" style="width: 100%; height: 100%; object-fit: cover;">
+                    <?php endif; ?>
                 </div>
             <?php endforeach; ?>
         </div>

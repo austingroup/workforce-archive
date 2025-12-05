@@ -24,8 +24,16 @@ try {
 // Create tables from schema
 echo "Creating database schema...\n";
 $schema = file_get_contents(__DIR__ . '/database/schema.sql');
-$db->exec($schema);
-echo "Schema created successfully.\n";
+try {
+    $db->exec($schema);
+    echo "Schema created successfully.\n";
+} catch (PDOException $e) {
+    if (strpos($e->getMessage(), 'already exists') !== false) {
+        echo "Schema already exists, skipping creation.\n";
+    } else {
+        throw $e;
+    }
+}
 
 // Import Users
 echo "\nImporting users...\n";
@@ -164,10 +172,25 @@ foreach ($postFiles as $postFile) {
             $post['readyAt'] ?? null
         ]);
         
-        // Insert post files
+        // Insert post files from parent post
         if (!empty($post['fileIds'])) {
             foreach ($post['fileIds'] as $index => $fileId) {
                 $fileStmt->execute([$post['_id'], $fileId, $index]);
+            }
+        }
+        
+        // If this is a container post, find and import files from containerItem children
+        if (($post['type'] ?? null) === 'container' && ($post['containerItemCount'] ?? 0) > 0) {
+            $fileOffset = count($post['fileIds'] ?? []);
+            foreach ($posts as $childPost) {
+                if (($childPost['parentPostId'] ?? null) === $post['_id'] && 
+                    ($childPost['postType'] ?? null) === 'containerItem') {
+                    if (!empty($childPost['fileIds'])) {
+                        foreach ($childPost['fileIds'] as $fileId) {
+                            $fileStmt->execute([$post['_id'], $fileId, $fileOffset++]);
+                        }
+                    }
+                }
             }
         }
         
