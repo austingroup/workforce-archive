@@ -1,8 +1,10 @@
 <?php
 /**
  * Image Proxy - Serves images from Windows network share
- * Path: \\gazman.com.au\AustinGroup\Archive\Company\GAZMAN\VM\Workforce\gazman-exported-gcs-files\image\post\{folder_id}\{filename}
  */
+
+// Load configuration
+$config = require_once __DIR__ . '/../config/image-config.php';
 
 // Enable error display for debugging
 ini_set('display_errors', 1);
@@ -18,14 +20,13 @@ if (empty($folderId) || empty($fileName)) {
     exit;
 }
 
-// Construct the full UNC path
-$basePath = '\\\\gazman.com.au\\AustinGroup\\Archive\\Company\\GAZMAN\\VM\\Workforce\\gazman-exported-gcs-files';
-$filePath = $basePath . '\\image\\post\\' . $folderId . '\\' . $fileName;
+// Construct the full UNC path using config
+$filePath = $config['image_server'] . '\\' . $config['image_base_path'] . '\\' . $folderId . '\\' . $fileName;
 
 // Check if file exists and is readable
 if (!file_exists($filePath) || !is_readable($filePath)) {
     // Serve placeholder image if file not found
-    $placeholderPath = __DIR__ . '/assets/images/workforce.jpeg';
+    $placeholderPath = __DIR__ . $config['placeholder_image'];
     if (file_exists($placeholderPath)) {
         header('Content-Type: image/jpeg');
         readfile($placeholderPath);
@@ -59,8 +60,12 @@ $mimeType = isset($mimeTypes[$extension]) ? $mimeTypes[$extension] : 'applicatio
 // Set appropriate headers
 header('Content-Type: ' . $mimeType);
 header('Content-Length: ' . $fileSize);
-header('Cache-Control: public, max-age=31536000'); // Cache for 1 year
-header('Expires: ' . gmdate('D, d M Y H:i:s', time() + 31536000) . ' GMT');
+
+// Use cache settings from config
+if ($config['cache_enabled']) {
+    header('Cache-Control: public, max-age=' . $config['cache_duration']);
+    header('Expires: ' . gmdate('D, d M Y H:i:s', time() + $config['cache_duration']) . ' GMT');
+}
 
 // Output the file
 readfile($filePath);
